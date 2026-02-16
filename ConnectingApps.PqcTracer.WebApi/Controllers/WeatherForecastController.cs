@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace PqcTracer.WebApi.Controllers;
+namespace ConnectingApps.PqcTracer.WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]

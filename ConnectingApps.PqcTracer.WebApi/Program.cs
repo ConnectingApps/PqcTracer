@@ -1,6 +1,6 @@
 using System.Net.Security;
 using Microsoft.AspNetCore.Connections;
-using PqcTracer.WebApi;
+using ConnectingApps.PqcTracer.WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 

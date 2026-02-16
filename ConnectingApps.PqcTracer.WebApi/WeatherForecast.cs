@@ -1,4 +1,4 @@
-namespace PqcTracer.WebApi;
+namespace ConnectingApps.PqcTracer.WebApi;
 
 public class WeatherForecast
 {
