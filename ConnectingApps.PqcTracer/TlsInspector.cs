@@ -118,7 +118,7 @@ public static class TlsInspector
         foreach (var field in fields)
         {
             if (field.FieldType.IsPrimitive || field.FieldType == typeof(string)) continue;
-            if (!field.FieldType.FullName.StartsWith("System.Net")) continue;
+            if (field.FieldType.FullName?.StartsWith("System.Net") != true) continue;
 
             try
             {

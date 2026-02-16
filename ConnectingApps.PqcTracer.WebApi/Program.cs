@@ -1,7 +1,7 @@
 using System.Net.Security;
 using ConnectingApps.PqcTracer;
 using Microsoft.AspNetCore.Connections;
-using ConnectingApps.PqcTracer;
+using Microsoft.AspNetCore.Connections.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,20 +16,19 @@ builder.WebHost.ConfigureKestrel(kestrel =>
         // 1. We must use OnAuthenticate to get access to the low-level options
         https.OnAuthenticate = (ConnectionContext context, SslServerAuthenticationOptions sslOptions) =>
         {
-            // 2. We assign to 'RemoteCertificateValidationCallback' (NOT ClientCertificateValidation)
-            // This delegate signature IS (sender, certificate, chain, errors)
             sslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
             {
-                // 3. Now 'sender' is available and is the SslStream
                 if (sender is SslStream sslStream)
                 {
-                    // This will now work without crashing
                     var group = TlsInspector.GetNegotiatedGroup(sslStream);
+                    var cipher = sslStream.NegotiatedCipherSuite.ToString();
 
-                    Console.WriteLine($"[TLS] Cipher: {sslStream.NegotiatedCipherSuite} | Group: {group}");
+                    context.Items["TlsCipher"] = cipher;
+                    context.Items["TlsGroup"] = group;
+
+                    Console.WriteLine($"[TLS] Cipher: {cipher} | Group: {group}");
                 }
 
-                // Return true to accept the connection
                 return true;
             };
         };
@@ -39,6 +38,26 @@ builder.WebHost.ConfigureKestrel(kestrel =>
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    var connectionItems = context.Features.Get<IConnectionItemsFeature>()?.Items;
+
+    if (connectionItems != null)
+    {
+        if (connectionItems.TryGetValue("TlsCipher", out var cipher))
+        {
+            context.Response.Headers["X-Tls-Cipher"] = cipher?.ToString();
+        }
+
+        if (connectionItems.TryGetValue("TlsGroup", out var group))
+        {
+            context.Response.Headers["X-Tls-Group"] = group?.ToString();
+        }
+    }
+
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
