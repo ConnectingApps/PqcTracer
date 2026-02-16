@@ -10,11 +10,7 @@ public static class TlsInspector
     private const string LibSsl = "libssl.so.3";
     private const string LibCrypto = "libcrypto.so.3";
 
-    // 1. The ideal function (might be missing if it's a macro)
-    [DllImport(LibSsl, EntryPoint = "SSL_get_negotiated_group")]
-    private static extern int SSL_get_negotiated_group(IntPtr ssl);
-
-    // 2. The fallback function (The "Universal Remote" for OpenSSL)
+    // The fallback function (The "Universal Remote" for OpenSSL)
     // long SSL_ctrl(SSL *s, int cmd, long larg, void *parg);
     [DllImport(LibSsl, EntryPoint = "SSL_ctrl")]
     private static extern long SSL_ctrl(IntPtr ssl, int cmd, long larg, IntPtr parg);
@@ -23,7 +19,7 @@ public static class TlsInspector
     private static extern IntPtr OBJ_nid2sn(int n);
 
     // Constants from OpenSSL headers (ssl.h)
-    private const int SSL_CTRL_GET_NEGOTIATED_GROUP = 134;
+    private const int SslCtrlGetNegotiatedGroup = 134;
 
     // --- Reflection Cache ---
     private static FieldInfo[]? _cachedPath;
@@ -44,20 +40,8 @@ public static class TlsInspector
             try
             {
                 IntPtr sslPtr = handle.DangerousGetHandle();
-                int nid = 0;
-
-                try
-                {
-                    // Try the direct function first
-                    nid = SSL_get_negotiated_group(sslPtr);
-                }
-                catch (EntryPointNotFoundException)
-                {
-                    // Fallback: If it's a macro, use SSL_ctrl
-                    // effectively: #define SSL_get_negotiated_group(s) SSL_ctrl(s, 134, 0, NULL)
-                    long result = SSL_ctrl(sslPtr, SSL_CTRL_GET_NEGOTIATED_GROUP, 0, IntPtr.Zero);
-                    nid = (int)result;
-                }
+                long result = SSL_ctrl(sslPtr, SslCtrlGetNegotiatedGroup, 0, IntPtr.Zero);
+                var nid = (int)result;
 
                 if (nid == 0) return "Unknown (NID=0)";
 
@@ -101,7 +85,7 @@ public static class TlsInspector
         return null;
     }
 
-    private static (SafeHandle? Handle, List<FieldInfo> Path) FindOpenSslHandle(object target, int depth, List<FieldInfo> currentPath)
+    private static (SafeHandle? Handle, List<FieldInfo> Path) FindOpenSslHandle(object? target, int depth, List<FieldInfo> currentPath)
     {
         if (depth > 4 || target == null) return (null, currentPath);
 
