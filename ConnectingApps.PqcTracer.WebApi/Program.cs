@@ -9,31 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.WebHost.ConfigureKestrel(kestrel =>
-{
-    kestrel.ConfigureHttpsDefaults(https =>
-    {
-        // 1. We must use OnAuthenticate to get access to the low-level options
-        https.OnAuthenticate = (ConnectionContext context, SslServerAuthenticationOptions sslOptions) =>
-        {
-            sslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
-            {
-                if (sender is SslStream sslStream)
-                {
-                    var group = TlsInspector.GetNegotiatedGroup(sslStream);
-                    var cipher = sslStream.NegotiatedCipherSuite.ToString();
+builder.WebHost.TraceTlsConnection();
 
-                    context.Items["TlsCipher"] = cipher;
-                    context.Items["TlsGroup"] = group;
-
-                    Console.WriteLine($"[TLS] Cipher: {cipher} | Group: {group}");
-                }
-
-                return true;
-            };
-        };
-    });
-});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
