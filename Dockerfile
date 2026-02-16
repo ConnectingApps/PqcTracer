@@ -36,7 +36,7 @@ RUN wget https://github.com/openssl/openssl/releases/download/openssl-3.5.0/open
 # Runtime stage
 FROM ubuntu:24.04 AS runtime
 
-# Install dependencies and .NET runtime first (using system OpenSSL)
+# Install system dependencies first
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -46,15 +46,14 @@ RUN apt-get update && \
         zlib1g \
     && rm -rf /var/lib/apt/lists/*
 
-# Install .NET 10 runtime using Microsoft's install script
-RUN wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh -O dotnet-install.sh && \
-    chmod +x dotnet-install.sh && \
-    ./dotnet-install.sh --channel 10.0 --runtime aspnetcore --install-dir /usr/share/dotnet && \
-    ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
-    rm dotnet-install.sh
-
-# Now copy and set up custom OpenSSL 3.5+
+# Copy and set up custom OpenSSL 3.5+ BEFORE installing .NET
 COPY --from=openssl-builder /opt/openssl /opt/openssl
+
+# Replace system OpenSSL with the custom build so ALL consumers (including .NET) use 3.5.0
+RUN ln -sf /opt/openssl/lib64/libssl.so.3 /usr/lib/x86_64-linux-gnu/libssl.so.3 && \
+    ln -sf /opt/openssl/lib64/libcrypto.so.3 /usr/lib/x86_64-linux-gnu/libcrypto.so.3 && \
+    ldconfig && \
+    update-ca-certificates
 
 # Set up OpenSSL paths
 ENV PATH="/opt/openssl/bin:${PATH}"
@@ -63,6 +62,13 @@ ENV PKG_CONFIG_PATH="/opt/openssl/lib64/pkgconfig:/opt/openssl/lib/pkgconfig:${P
 
 # Verify OpenSSL version is 3.5+
 RUN openssl version
+
+# Now install .NET 10 runtime - it will use the custom OpenSSL we just set up
+RUN wget --no-check-certificate https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh -O dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    ./dotnet-install.sh --channel 10.0 --runtime aspnetcore --install-dir /usr/share/dotnet && \
+    ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
+    rm dotnet-install.sh
 
 WORKDIR /app
 COPY --from=build /app/publish .

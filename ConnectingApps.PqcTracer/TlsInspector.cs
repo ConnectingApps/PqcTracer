@@ -15,6 +15,10 @@ public static class TlsInspector
     [DllImport(LibSsl, EntryPoint = "SSL_ctrl")]
     private static extern long SSL_ctrl(IntPtr ssl, int cmd, long larg, IntPtr parg);
 
+    // Get the name of a TLS group from its ID
+    [DllImport(LibSsl, EntryPoint = "SSL_group_to_name")]
+    private static extern IntPtr SSL_group_to_name(IntPtr ssl, int id);
+
     [DllImport(LibCrypto, EntryPoint = "OBJ_nid2sn")]
     private static extern IntPtr OBJ_nid2sn(int n);
 
@@ -41,13 +45,16 @@ public static class TlsInspector
             {
                 IntPtr sslPtr = handle.DangerousGetHandle();
                 long result = SSL_ctrl(sslPtr, SslCtrlGetNegotiatedGroup, 0, IntPtr.Zero);
-                var nid = (int)result;
+                var groupId = (int)result;
 
-                if (nid == 0) return "Unknown (NID=0)";
+                if (groupId == 0) return "Unknown (GroupID=0)";
 
-                // Convert NID to Text
-                IntPtr namePtr = OBJ_nid2sn(nid);
-                return Marshal.PtrToStringAnsi(namePtr) ?? "Decode Error";
+                // Convert Group ID to name using SSL_group_to_name (not OBJ_nid2sn for TLS 1.3 groups)
+                IntPtr namePtr = SSL_group_to_name(sslPtr, groupId);
+                
+                if (namePtr == IntPtr.Zero) return $"Decode Error (GroupID={groupId})";
+                
+                return Marshal.PtrToStringAnsi(namePtr) ?? $"Decode Error (GroupID={groupId})";
             }
             finally
             {
