@@ -9,10 +9,19 @@
         <Description>For each request, you can know, just by reading a header, what key exchange group is negotiated. Based on this, you know if PQC is used in the request.</Description>
         <PackageProjectUrl>https://github.com/ConnectingApps/PqcTracer</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ConnectingApps/PqcTracer</RepositoryUrl>
+        <Company>Connecting Apps</Company>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>
