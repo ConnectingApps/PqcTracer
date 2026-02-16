@@ -1,6 +1,3 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
@@ -16,13 +13,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
+
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore PqcTracer.slnx
+
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build PqcTracer.slnx --no-restore --configuration Release
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ConnectingApps.PqcTracer.Test/ConnectingApps.PqcTracer.Test.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: '**/test-results.trx'
+
+    - name: List NuGet packages
+      run: find . -name '*.nupkg' -o -name '*.snupkg' | sort
+      if: always()
+
+    - name: Build Docker image
+      run: docker build -t pqctracer:latest .
+
+    - name: Run Docker container
+      run: |
+        docker run --name pqctracer-container -d pqctracer:latest
+        echo "Waiting 15 seconds for container to run..."
+        sleep 15
+        echo "Container logs:"
+        docker logs pqctracer-container
+        echo "Stopping container..."
+        docker stop pqctracer-container
