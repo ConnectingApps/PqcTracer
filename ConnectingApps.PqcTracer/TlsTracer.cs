@@ -1,5 +1,4 @@
 using System.Net.Security;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 
 namespace ConnectingApps.PqcTracer;
@@ -16,15 +15,15 @@ public static class TlsTracer
             kestrel.ConfigureHttpsDefaults(https =>
             {
                 // 1. We must use OnAuthenticate to get access to the low-level options
-                https.OnAuthenticate = (ConnectionContext context, SslServerAuthenticationOptions sslOptions) =>
+                https.OnAuthenticate = (context, sslOptions) =>
                 {
-                    sslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
+                    sslOptions.RemoteCertificateValidationCallback = (sender, _, _, _) =>
                     {
                         if (sender is SslStream sslStream)
                         {
                             var group = TlsInspector.GetNegotiatedGroup(sslStream);
                             var cipher = sslStream.NegotiatedCipherSuite.ToString();
-
+                            
                             context.Items["TlsCipher"] = cipher;
                             context.Items["TlsGroup"] = group;
                             callback(new TlsTrace(group, cipher));
