@@ -11,6 +11,7 @@
         <Company>Connecting Apps</Company>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+        <PackageReleaseNotes>First Version, supporting Linux.</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
