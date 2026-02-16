@@ -4,11 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace ConnectingApps.PqcTracer;
 
-public static class TlsInspector
+internal static class TlsInspector
 {
     // --- OpenSSL Imports ---
     private const string LibSsl = "libssl.so.3";
-    private const string LibCrypto = "libcrypto.so.3";
 
     // The fallback function (The "Universal Remote" for OpenSSL)
     // long SSL_ctrl(SSL *s, int cmd, long larg, void *parg);
@@ -18,9 +17,6 @@ public static class TlsInspector
     // Get the name of a TLS group from its ID
     [DllImport(LibSsl, EntryPoint = "SSL_group_to_name")]
     private static extern IntPtr SSL_group_to_name(IntPtr ssl, int id);
-
-    [DllImport(LibCrypto, EntryPoint = "OBJ_nid2sn")]
-    private static extern IntPtr OBJ_nid2sn(int n);
 
     // Constants from OpenSSL headers (ssl.h)
     private const int SslCtrlGetNegotiatedGroup = 134;
