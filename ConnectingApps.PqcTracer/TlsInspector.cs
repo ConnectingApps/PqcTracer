@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ConnectingApps.PqcTracer.WebApi;
+namespace ConnectingApps.PqcTracer;
 
 public static class TlsInspector
 {
