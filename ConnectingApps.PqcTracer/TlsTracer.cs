@@ -27,8 +27,6 @@ public static class TlsTracer
                             context.Items["TlsCipher"] = cipher;
                             context.Items["TlsGroup"] = group;
                             callback(new TlsTrace(group, cipher));
-
-                            Console.WriteLine($"[TLS] Cipher: {cipher} | Group: {group}");
                         }
 
                         return true;
