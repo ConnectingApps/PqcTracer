@@ -5,6 +5,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>PqcTracer</Title>
+        <Description>For each request, you can know, just by reading a header, what key exchange group is negotiated. Based on this, you know if PQC is used in the request.</Description>
+        <PackageProjectUrl>https://github.com/ConnectingApps/PqcTracer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ConnectingApps/PqcTracer</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
