@@ -1,0 +1,6 @@
+@PqcTracer.WebApi_HostAddress = http://localhost:5038
+
+GET {{PqcTracer.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
