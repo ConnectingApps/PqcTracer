@@ -4,6 +4,8 @@ WORKDIR /src
 # Copy project files
 COPY ConnectingApps.PqcTracer/ConnectingApps.PqcTracer.csproj ConnectingApps.PqcTracer/
 COPY ConnectingApps.PqcTracer.WebApi/ConnectingApps.PqcTracer.WebApi.csproj ConnectingApps.PqcTracer.WebApi/
+# Copy README.md for the NuGet package
+COPY README.md ./
 RUN dotnet restore ConnectingApps.PqcTracer.WebApi/ConnectingApps.PqcTracer.WebApi.csproj
 
 # Copy source code
