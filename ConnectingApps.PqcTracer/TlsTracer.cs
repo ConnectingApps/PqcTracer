@@ -1,5 +1,7 @@
 using System.Net.Security;
 using ConnectingApps.PqcTracer.TlsInspection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Hosting;
 
 namespace ConnectingApps.PqcTracer;
@@ -24,7 +26,7 @@ public static class TlsTracer
                         {
                             var group = GeneralTlsInspector.GetNegotiatedGroup(sslStream);
                             var cipher = sslStream.NegotiatedCipherSuite.ToString();
-                            
+
                             context.Items["TlsCipher"] = cipher;
                             context.Items["TlsGroup"] = group;
                             callback(new TlsTrace(group, cipher));
@@ -34,6 +36,29 @@ public static class TlsTracer
                     };
                 };
             });
+        });
+    }
+
+    public static IApplicationBuilder UseTlsTraceHeaders(this IApplicationBuilder app)
+    {
+        return app.Use(async (context, next) =>
+        {
+            var connectionItems = context.Features.Get<IConnectionItemsFeature>()?.Items;
+
+            if (connectionItems != null)
+            {
+                if (connectionItems.TryGetValue("TlsCipher", out var cipher))
+                {
+                    context.Response.Headers["X-Tls-Cipher"] = cipher?.ToString();
+                }
+
+                if (connectionItems.TryGetValue("TlsGroup", out var group))
+                {
+                    context.Response.Headers["X-Tls-Group"] = group?.ToString();
+                }
+            }
+
+            await next();
         });
     }
 }

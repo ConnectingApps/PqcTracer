@@ -1,7 +1,4 @@
-using System.Net.Security;
 using ConnectingApps.PqcTracer;
-using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.Connections.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,25 +13,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.Use(async (context, next) =>
-{
-    var connectionItems = context.Features.Get<IConnectionItemsFeature>()?.Items;
-
-    if (connectionItems != null)
-    {
-        if (connectionItems.TryGetValue("TlsCipher", out var cipher))
-        {
-            context.Response.Headers["X-Tls-Cipher"] = cipher?.ToString();
-        }
-
-        if (connectionItems.TryGetValue("TlsGroup", out var group))
-        {
-            context.Response.Headers["X-Tls-Group"] = group?.ToString();
-        }
-    }
-
-    await next();
-});
+app.UseTlsTraceHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
