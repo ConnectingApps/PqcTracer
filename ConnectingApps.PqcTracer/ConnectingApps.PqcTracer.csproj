@@ -4,6 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageId>ConnectingApps.PqcTracer</PackageId>
         <Title>PqcTracer</Title>
         <Description>For each request, you can know, just by reading a header, what key exchange group is negotiated. Based on this, you know if PQC is used in the request.</Description>
         <PackageProjectUrl>https://github.com/ConnectingApps/PqcTracer</PackageProjectUrl>
@@ -39,12 +40,12 @@
 
     <ItemGroup>
       <None Include="ConnectingApps.PqcTracer.targets">
-        <Pack>True</Pack>
-        <PackagePath>build\</PackagePath>
+        <Pack>true</Pack>
+        <PackagePath>build/$(PackageId).targets</PackagePath>
       </None>
       <None Include="ConnectingApps.PqcTracer.targets">
-        <Pack>True</Pack>
-        <PackagePath>buildTransitive\</PackagePath>
+        <Pack>true</Pack>
+        <PackagePath>buildTransitive/$(PackageId).targets</PackagePath>
       </None>
     </ItemGroup>
 

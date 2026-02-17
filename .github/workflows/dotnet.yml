@@ -38,6 +38,17 @@ jobs:
       run: find . -name '*.nupkg' -o -name '*.snupkg' | sort
       if: always()
 
+    - name: Validate NuGet targets layout
+      run: |
+        package=$(find . -path '*/bin/Release/*.nupkg' ! -name '*.snupkg' | head -n 1)
+        if [ -z "$package" ]; then
+          echo "No .nupkg found under bin/Release"
+          exit 1
+        fi
+        echo "Checking package: $package"
+        unzip -l "$package" | awk '{print $4}' | grep -Fx 'build/ConnectingApps.PqcTracer.targets'
+        unzip -l "$package" | awk '{print $4}' | grep -Fx 'buildTransitive/ConnectingApps.PqcTracer.targets'
+
     - name: Build Docker image
       run: docker build -t pqctracer:latest .
 
