@@ -2,62 +2,85 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - feature/*
+      - dependabot/**
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - feature/*
+      - dependabot/**
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore PqcTracer.slnx
+      - name: Restore dependencies
+        run: dotnet restore PqcTracer.slnx
 
-    - name: Build
-      run: dotnet build PqcTracer.slnx --no-restore --configuration Release
+      - name: Build
+        run: dotnet build PqcTracer.slnx --no-restore --configuration Release
 
-    - name: Test
-      run: dotnet test ConnectingApps.PqcTracer.Test/ConnectingApps.PqcTracer.Test.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      - name: Test
+        run: dotnet test ConnectingApps.PqcTracer.Test/ConnectingApps.PqcTracer.Test.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
 
-    - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: always()
-      with:
-        files: '**/test-results.trx'
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/test-results.trx'
 
-    - name: List NuGet packages
-      run: find . -name '*.nupkg' -o -name '*.snupkg' | sort
-      if: always()
+      - name: List NuGet packages
+        id: list_packages
+        if: always()
+        shell: bash
+        run: |
+          find . -name '*.nupkg' -o -name '*.snupkg' | sort
+          first_package=$(find . -name '*.nupkg' ! -name '*.snupkg' | sort | head -n 1)
+          if [ -z "$first_package" ]; then
+            echo "No .nupkg package found."
+            exit 1
+          fi
+          echo "first_package=$first_package" >> "$GITHUB_OUTPUT"
+          echo "First package selected for publish: $first_package"
 
-    - name: Validate NuGet targets layout
-      run: |
-        package=$(find . -path '*/bin/Release/*.nupkg' ! -name '*.snupkg' | head -n 1)
-        if [ -z "$package" ]; then
-          echo "No .nupkg found under bin/Release"
-          exit 1
-        fi
-        echo "Checking package: $package"
-        unzip -l "$package" | awk '{print $4}' | grep -Fx 'build/ConnectingApps.PqcTracer.targets'
-        unzip -l "$package" | awk '{print $4}' | grep -Fx 'buildTransitive/ConnectingApps.PqcTracer.targets'
+      - name: Validate NuGet targets layout
+        run: |
+          package=$(find . -path '*/bin/Release/*.nupkg' ! -name '*.snupkg' | head -n 1)
+          if [ -z "$package" ]; then
+            echo "No .nupkg found under bin/Release"
+            exit 1
+          fi
+          echo "Checking package: $package"
+          unzip -l "$package" | awk '{print $4}' | grep -Fx 'build/ConnectingApps.PqcTracer.targets'
+          unzip -l "$package" | awk '{print $4}' | grep -Fx 'buildTransitive/ConnectingApps.PqcTracer.targets'
 
-    - name: Build Docker image
-      run: docker build -t pqctracer:latest .
+      - name: Build Docker image
+        run: docker build -t pqctracer:latest .
 
-    - name: Run Docker container
-      run: |
-        docker run --name pqctracer-container -d pqctracer:latest
-        echo "Waiting 15 seconds for container to run..."
-        sleep 15
-        echo "Container logs:"
-        docker logs pqctracer-container
-        echo "Stopping container..."
-        docker stop pqctracer-container
+      - name: Run Docker container
+        run: |
+          docker run --name pqctracer-container -d pqctracer:latest
+          echo "Waiting 15 seconds for container to run..."
+          sleep 15
+          echo "Container logs:"
+          docker logs pqctracer-container
+          echo "Stopping container..."
+          docker stop pqctracer-container
+
+      - name: Publish NuGet package
+        if: github.ref == 'refs/heads/main'
+        run: |
+          dotnet nuget push "${{ steps.list_packages.outputs.first_package }}" \
+            --api-key "${{ secrets.NUGET_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
