@@ -2,9 +2,9 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ConnectingApps.PqcTracer;
+namespace ConnectingApps.PqcTracer.TlsInspection;
 
-internal static class TlsInspector
+internal static class LinuxTlsInspector
 {
     // --- OpenSSL Imports ---
     private const string LibSsl = "libssl.so.3";

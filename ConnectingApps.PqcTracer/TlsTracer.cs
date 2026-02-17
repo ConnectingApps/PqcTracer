@@ -1,4 +1,5 @@
 using System.Net.Security;
+using ConnectingApps.PqcTracer.TlsInspection;
 using Microsoft.AspNetCore.Hosting;
 
 namespace ConnectingApps.PqcTracer;
@@ -21,7 +22,7 @@ public static class TlsTracer
                     {
                         if (sender is SslStream sslStream)
                         {
-                            var group = TlsInspector.GetNegotiatedGroup(sslStream);
+                            var group = GeneralTlsInspector.GetNegotiatedGroup(sslStream);
                             var cipher = sslStream.NegotiatedCipherSuite.ToString();
                             
                             context.Items["TlsCipher"] = cipher;
