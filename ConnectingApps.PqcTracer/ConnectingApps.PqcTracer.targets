@@ -1,0 +1,11 @@
+<Project>
+  <Target Name="PqcTracerWelcomeMessage" BeforeTargets="Build">
+    <Message Importance="high" Text="=====================================================================" />
+    <Message Importance="high" Text="Thanks for installing PqcTracer!" />
+    <Message Importance="high" Text="Track Post-Quantum Cryptography (PQC) usage in your requests." />
+    <Message Importance="high" Text="Visit https://github.com/ConnectingApps/PqcTracer for documentation" />
+    <Message Importance="high" Text="Powered by Connecting Apps and QuantumSafeAudit.com" />
+    <Message Importance="high" Text="Are your browser and web server quantum safe? Check it on QuantumSafeAudit.com" />
+    <Message Importance="high" Text="=====================================================================" />
+  </Target>
+</Project>
