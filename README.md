@@ -2,7 +2,7 @@
 
 **Trace if your web requests are quantum-proof.**
 
-[![NuGet](https://img.shields.io/nuget/v/ConnectingApps.PqcTracer.svg)](https://www.nuget.org/packages/ConnectingApps.PqcTracer)
+![PqcTracer](ConnectingApps.PqcTracer/icon.png)
 
 ## Why Post-Quantum Cryptography Matters
 
