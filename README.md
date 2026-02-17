@@ -2,8 +2,6 @@
 
 **Trace if your web requests are quantum-proof.**
 
-![PqcTracer](ConnectingApps.PqcTracer/icon.png)
-
 ## Why Post-Quantum Cryptography Matters
 
 Quantum computers pose an existential threat to current encryption. Algorithms like RSA and elliptic-curve cryptography (used in today's TLS connections) can be broken by sufficiently powerful quantum computers using Shor's algorithm. This means data encrypted today could be harvested and decrypted in the future—a threat known as **"harvest now, decrypt later"**.
