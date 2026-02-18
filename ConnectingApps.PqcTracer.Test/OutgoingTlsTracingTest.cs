@@ -1,8 +1,6 @@
-using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using ConnectingApps.PqcTracer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -28,10 +26,8 @@ public class OutgoingTlsTracingTest
         await app.StartAsync();
 
         var baseAddress = GetServerBaseAddress(app);
-        using var client = new HttpClient(new TlsTracingHandler(certificateValidator: (_, _, _, _) => true))
-        {
-            BaseAddress = baseAddress
-        };
+        using var client = new HttpClient(new TlsTracingHandler(certificateValidator: (_, _, _, _) => true));
+        client.BaseAddress = baseAddress;
 
         using var response = await client.GetAsync("/ping");
         response.EnsureSuccessStatusCode();
@@ -87,9 +83,7 @@ public class OutgoingTlsTracingTest
 
     private static bool IsInvalidGroup(string group)
     {
-        if (group.StartsWith("Err:", StringComparison.OrdinalIgnoreCase)) return true;
-        if (group.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase)) return true;
-        if (group.StartsWith("Non-Linux", StringComparison.OrdinalIgnoreCase)) return true;
-        return false;
+        string[] validGroups = ["X25519", $"X25519MLKEM768"];
+        return !validGroups.Any(x => group.Equals(x, StringComparison.OrdinalIgnoreCase));
     }
 }
