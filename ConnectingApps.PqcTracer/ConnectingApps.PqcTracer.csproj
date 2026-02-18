@@ -6,18 +6,18 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>ConnectingApps.PqcTracer</PackageId>
         <Title>PqcTracer</Title>
-        <Description>In your .NET web application or web API, for each request, you can know, just by reading a header, what key exchange group is negotiated. Based on this, you know if PQC is used in the request, which means your protected against attacks from quantum computers.</Description>
+        <Description>In your .NET web application, web API, or HTTP client, for each request, you can know, just by reading a header, what key exchange group is negotiated. Based on this, you know if PQC is used in the request, which means you're protected against attacks from quantum computers. Supports both server-side (web APIs/applications) and client-side (HttpClient) scenarios.</Description>
         <PackageProjectUrl>https://github.com/ConnectingApps/PqcTracer</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ConnectingApps/PqcTracer</RepositoryUrl>
         <Company>Connecting Apps and QuantumSafeAudit.com</Company>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
-        <PackageReleaseNotes>First Version, supporting Linux.</PackageReleaseNotes>
+        <PackageReleaseNotes>Version 2.0.0: Added support for HttpClient scenarios. You can now trace PQC usage in both server-side (web APIs/applications) and client-side HTTP requests.</PackageReleaseNotes>
         <PackageIcon>icon.png</PackageIcon>
-        <Version>1.0.1</Version>
-	    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-	    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	    <Copyright>Copyright © 2026 Connecting Apps and QuantumSafeAudit.com</Copyright>
+        <Version>2.0.0</Version>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+        <Copyright>Copyright © 2026 Connecting Apps and QuantumSafeAudit.com</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
