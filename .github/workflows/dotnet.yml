@@ -30,6 +30,12 @@ jobs:
       - name: Build
         run: dotnet build PqcTracer.slnx --no-restore --configuration Release
 
+      - name: Run ConnectingApps.PqcTracer.Example
+        run: dotnet run --project ConnectingApps.PqcTracer.Example/ConnectingApps.PqcTracer.Example.csproj --no-build --configuration Release
+
+      - name: Run ConnectingApps.PqcTracer.Example.DI
+        run: dotnet run --project ConnectingApps.PqcTracer.Example.DI/ConnectingApps.PqcTracer.Example.DI.csproj --no-build --configuration Release
+
       - name: Test
         run: dotnet test ConnectingApps.PqcTracer.Test/ConnectingApps.PqcTracer.Test.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
 
