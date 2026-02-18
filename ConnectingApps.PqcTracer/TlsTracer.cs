@@ -68,7 +68,7 @@ public static class TlsTracer
     public static IHttpClientBuilder AddTlsTracing(this IHttpClientBuilder builder, Action<TlsTrace>? callback = null,
         RemoteCertificateValidationCallback? certificateValidator = null)
     {
-        return builder.AddHttpMessageHandler(() => new TlsTracingHandler(callback, certificateValidator));
+        return builder.ConfigurePrimaryHttpMessageHandler(() => new TlsTracingHandler(callback, certificateValidator));
     }
 
     public static TlsTrace? GetTlsTrace(this HttpResponseMessage response)

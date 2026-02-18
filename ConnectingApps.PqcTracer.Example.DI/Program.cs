@@ -1,15 +1,17 @@
 ﻿using ConnectingApps.PqcTracer;
 using Microsoft.Extensions.DependencyInjection;
 
-// Register an HttpClient via DI and call AddTlsTracing on the builder (as requested)
+// Register the HttpClient via DI
 var services = new ServiceCollection();
-IHttpClientBuilder builder = services.AddHttpClient("GoogleClient");
-builder.AddTlsTracing();
+services.AddHttpClient("GoogleClient").AddTlsTracing();
+
 var serviceProvider = services.BuildServiceProvider();
 
-// For the actual request, use TlsTracingHandler directly to ensure TLS trace is captured reliably
-using var handler = new TlsTracingHandler();
-using var client = new HttpClient(handler);
+// Resolve IHttpClientFactory from the service provider
+var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+
+// Create the client using the factory
+using var client = httpClientFactory.CreateClient("GoogleClient");
 
 try
 {
