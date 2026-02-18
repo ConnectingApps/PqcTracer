@@ -16,6 +16,10 @@ public sealed class TlsTracingHandler : DelegatingHandler
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TlsTracingHandler"/> class.
+    /// The handler takes ownership of the <paramref name="innerHandler"/> and will dispose it when this handler is disposed.
+    /// </summary>
     public TlsTracingHandler(SocketsHttpHandler innerHandler, Action<TlsTrace>? callback = null, RemoteCertificateValidationCallback? certificateValidator = null)
         : base(innerHandler)
     {
@@ -27,20 +31,24 @@ public sealed class TlsTracingHandler : DelegatingHandler
     private async ValueTask<Stream> ConnectWithTlsAsync(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
     {
         var tcpClient = new TcpClient();
+        Stream? stream = null;
+        SslStream? sslStream = null;
+        bool success = false;
         try
         {
             await tcpClient.ConnectAsync(context.DnsEndPoint.Host, context.DnsEndPoint.Port, cancellationToken)
                 .ConfigureAwait(false);
 
-            Stream stream = tcpClient.GetStream();
+            stream = tcpClient.GetStream();
             var request = context.InitialRequestMessage;
 
             if (request?.RequestUri?.Scheme != Uri.UriSchemeHttps)
             {
+                success = true;
                 return stream;
             }
 
-            var sslStream = new SslStream(stream, leaveInnerStreamOpen: false, ValidateCertificate);
+            sslStream = new SslStream(stream, leaveInnerStreamOpen: false, ValidateCertificate);
             var sslOptions = new SslClientAuthenticationOptions
             {
                 TargetHost = context.DnsEndPoint.Host,
@@ -49,12 +57,17 @@ public sealed class TlsTracingHandler : DelegatingHandler
 
             await sslStream.AuthenticateAsClientAsync(sslOptions, cancellationToken).ConfigureAwait(false);
             CaptureTrace(request, sslStream);
+            success = true;
             return sslStream;
         }
-        catch
+        finally
         {
-            tcpClient.Dispose();
-            throw;
+            if (!success)
+            {
+                sslStream?.Dispose();
+                stream?.Dispose();
+                tcpClient.Dispose();
+            }
         }
     }
 
