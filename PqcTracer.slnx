@@ -1,5 +1,7 @@
 <Solution>
+  <Project Path="ConnectingApps.PqcTracer.Example/ConnectingApps.PqcTracer.Example.csproj" />
   <Project Path="ConnectingApps.PqcTracer.Test/ConnectingApps.PqcTracer.Test.csproj" />
   <Project Path="ConnectingApps.PqcTracer.WebApi/ConnectingApps.PqcTracer.WebApi.csproj" />
   <Project Path="ConnectingApps.PqcTracer/ConnectingApps.PqcTracer.csproj" />
+  <Project Path="ConnectingApps.PqcTracer.Example.DI/ConnectingApps.PqcTracer.Example.DI.csproj" />
 </Solution>

@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ConnectingApps.PqcTracer.WebApi\ConnectingApps.PqcTracer.WebApi.csproj" />
+        <ProjectReference Include="..\ConnectingApps.PqcTracer\ConnectingApps.PqcTracer.csproj" />
     </ItemGroup>
 
     <ItemGroup>

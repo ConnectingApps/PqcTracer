@@ -3,6 +3,7 @@ using ConnectingApps.PqcTracer.TlsInspection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ConnectingApps.PqcTracer;
 
@@ -10,6 +11,8 @@ public record TlsTrace(string Group, string CipherSuite);
 
 public static class TlsTracer
 {
+    public static readonly HttpRequestOptionsKey<TlsTrace> TlsTraceKey = new("TlsTrace");
+
     public static void TraceTlsConnection(this IWebHostBuilder builder, Action<TlsTrace>? callback = null)
     {
         callback ??= _ => { };
@@ -60,5 +63,17 @@ public static class TlsTracer
 
             await next();
         });
+    }
+
+    public static IHttpClientBuilder AddTlsTracing(this IHttpClientBuilder builder, Action<TlsTrace>? callback = null,
+        RemoteCertificateValidationCallback? certificateValidator = null)
+    {
+        return builder.ConfigurePrimaryHttpMessageHandler(() => new TlsTracingHandler(callback, certificateValidator));
+    }
+
+    public static TlsTrace? GetTlsTrace(this HttpResponseMessage response)
+    {
+        if (response.RequestMessage == null) return null;
+        return response.RequestMessage.Options.TryGetValue(TlsTraceKey, out TlsTrace? trace) ? trace : null;
     }
 }
