@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Net.Security;
 using ConnectingApps.PqcTracer.TlsInspection;
 using Microsoft.AspNetCore.Builder;
@@ -75,6 +74,6 @@ public static class TlsTracer
     public static TlsTrace? GetTlsTrace(this HttpResponseMessage response)
     {
         if (response.RequestMessage == null) return null;
-        return response.RequestMessage.Options.TryGetValue(TlsTraceKey, out TlsTrace trace) ? trace : null;
+        return response.RequestMessage.Options.TryGetValue(TlsTraceKey, out TlsTrace? trace) ? trace : null;
     }
 }
