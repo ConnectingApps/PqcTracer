@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -42,7 +41,7 @@ public sealed class TlsTracingHandler : DelegatingHandler
             stream = tcpClient.GetStream();
             var request = context.InitialRequestMessage;
 
-            if (request?.RequestUri?.Scheme != Uri.UriSchemeHttps)
+            if (request.RequestUri?.Scheme != Uri.UriSchemeHttps)
             {
                 success = true;
                 return stream;
@@ -64,8 +63,14 @@ public sealed class TlsTracingHandler : DelegatingHandler
         {
             if (!success)
             {
-                sslStream?.Dispose();
-                stream?.Dispose();
+                if (sslStream != null)
+                {
+                    await sslStream.DisposeAsync().ConfigureAwait(false);
+                }
+                if (stream != null)
+                {
+                    await stream.DisposeAsync().ConfigureAwait(false);
+                }
                 tcpClient.Dispose();
             }
         }
